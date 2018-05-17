@@ -5,6 +5,7 @@ using NFluent;
 using Xunit;
 using WireMock.RequestBuilders;
 using WireMock.Matchers.Request;
+using WireMock.Util;
 
 namespace WireMock.Net.Tests
 {
@@ -30,12 +31,14 @@ namespace WireMock.Net.Tests
         public void Should_exclude_requests_not_matching_given_headers()
         {
             // given
-            var spec = Request.Create().UsingAnyVerb().WithHeader("X-toto", "tatata");
+            var spec = Request.Create().UsingAnyMethod().WithHeader("X-toto", "tatata");
 
             // when
-            string bodyAsString = "whatever";
-            byte[] body = Encoding.UTF8.GetBytes(bodyAsString);
-            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, body, bodyAsString, Encoding.UTF8, new Dictionary<string, string[]> { { "X-toto", new[] { "tata" } } });
+            var body = new BodyData
+            {
+                BodyAsString = "whatever"
+            };
+            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, body, new Dictionary<string, string[]> { { "X-toto", new[] { "tata" } } });
 
             // then
             var requestMatchResult = new RequestMatchResult();
@@ -46,12 +49,14 @@ namespace WireMock.Net.Tests
         public void Should_exclude_requests_not_matching_given_headers_ignorecase()
         {
             // given
-            var spec = Request.Create().UsingAnyVerb().WithHeader("X-toto", "abc", false);
+            var spec = Request.Create().UsingAnyMethod().WithHeader("X-toto", "abc", false);
 
             // when
-            string bodyAsString = "whatever";
-            byte[] body = Encoding.UTF8.GetBytes(bodyAsString);
-            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, body, bodyAsString, Encoding.UTF8, new Dictionary<string, string[]> { { "X-toto", new[] { "ABC" } } });
+            var body = new BodyData
+            {
+                BodyAsString = "whatever"
+            };
+            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, body, new Dictionary<string, string[]> { { "X-toto", new[] { "ABC" } } });
 
             // then
             var requestMatchResult = new RequestMatchResult();
@@ -62,47 +67,50 @@ namespace WireMock.Net.Tests
         public void Should_specify_requests_matching_given_header_prefix()
         {
             // given
-            var spec = Request.Create().UsingAnyVerb().WithHeader("X-toto", "tata*");
+            var spec = Request.Create().UsingAnyMethod().WithHeader("X-toto", "tata*");
 
             // when
-            string bodyAsString = "whatever";
-            byte[] body = Encoding.UTF8.GetBytes(bodyAsString);
-            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, body, bodyAsString, Encoding.UTF8, new Dictionary<string, string[]> { { "X-toto", new[] { "TaTa" } } });
+            var body = new BodyData
+            {
+                BodyAsString = "whatever"
+            };
+            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, body, new Dictionary<string, string[]> { { "X-toto", new[] { "TaTa" } } });
 
             // then
             var requestMatchResult = new RequestMatchResult();
             Check.That(spec.GetMatchingScore(request, requestMatchResult)).IsEqualTo(1.0);
         }
-
-        
 
         [Fact]
         public void Should_specify_requests_matching_given_body()
         {
             // given
-            var spec = Request.Create().UsingAnyVerb().WithBody("Hello world!");
+            var spec = Request.Create().UsingAnyMethod().WithBody("Hello world!");
 
             // when
-            string bodyAsString = "Hello world!";
-            byte[] body = Encoding.UTF8.GetBytes(bodyAsString);
-            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, body, bodyAsString, Encoding.UTF8);
+            var body = new BodyData
+            {
+                BodyAsString = "Hello world!"
+            };
+            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, body);
 
             // then
             var requestMatchResult = new RequestMatchResult();
             Check.That(spec.GetMatchingScore(request, requestMatchResult)).IsEqualTo(1.0);
         }
 
-        
         [Fact]
         public void Should_exclude_requests_not_matching_given_body()
         {
             // given
-            var spec = Request.Create().UsingAnyVerb().WithBody("      Hello world!   ");
+            var spec = Request.Create().UsingAnyMethod().WithBody("      Hello world!   ");
 
             // when
-            string bodyAsString = "xxx";
-            byte[] body = Encoding.UTF8.GetBytes(bodyAsString);
-            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, body, bodyAsString, Encoding.UTF8, new Dictionary<string, string[]> { { "X-toto", new[] { "tata" } } });
+            var body = new BodyData
+            {
+                BodyAsString = "xxx"
+            };
+            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, body, new Dictionary<string, string[]> { { "X-toto", new[] { "tata" } } });
 
             // then
             var requestMatchResult = new RequestMatchResult();
@@ -127,7 +135,7 @@ namespace WireMock.Net.Tests
         public void Should_specify_requests_matching_given_param_func()
         {
             // given
-            var spec = Request.Create().UsingAnyVerb().WithParam(p => p.ContainsKey("bar"));
+            var spec = Request.Create().UsingAnyMethod().WithParam(p => p.ContainsKey("bar"));
 
             // when
             var request = new RequestMessage(new Uri("http://localhost/foo?bar=1&bar=2"), "PUT", ClientIp);

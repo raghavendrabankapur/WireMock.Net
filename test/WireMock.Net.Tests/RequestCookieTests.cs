@@ -15,10 +15,10 @@ namespace WireMock.Net.Tests
         public void Request_WithCookie_OK()
         {
             // given
-            var spec = Request.Create().UsingAnyVerb().WithCookie("session", "a*");
+            var spec = Request.Create().UsingAnyMethod().WithCookie("session", "a*");
 
             // when
-            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, null, null, null, null, new Dictionary<string, string> { { "session", "abc" } });
+            var request = new RequestMessage(new Uri("http://localhost/foo"), "PUT", ClientIp, null, null, new Dictionary<string, string> { { "session", "abc" } });
 
             // then
             var requestMatchResult = new RequestMatchResult();
